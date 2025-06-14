@@ -1,1 +1,5 @@
+
 project_id = "thymkjtnggytmiemzenp"
+
+[functions.get-dictionnaire]
+verify_jwt = false
