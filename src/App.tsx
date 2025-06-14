@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Dictionary from "./pages/Dictionary";
+import Explore from "./pages/Explore";
 import WordDetail from "./pages/WordDetail";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
