@@ -38,8 +38,14 @@ const Index = () => {
 
   const handleMenuClick = (option: string) => {
     if (option === "contactez-nous") {
-      // Naviguer vers la page de contact existante
-      window.location.href = "/contact";
+      // Ouvrir la boîte mail avec l'adresse pré-remplie
+      window.location.href = "mailto:languenzebiofficiel@gmail.com";
+    } else if (option === "version") {
+      toast({
+        title: "Version de l'application",
+        description: "Version: 1.1.2",
+        duration: 3000,
+      });
     } else {
       toast({
         title: option.charAt(0).toUpperCase() + option.slice(1),
