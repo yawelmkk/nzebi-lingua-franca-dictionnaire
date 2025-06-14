@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Volume2, MessageCircle, Loader2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Search, Volume2, MoreHorizontal, Settings, MessageCircle, Shield, Info, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useDictionary } from "@/hooks/useDictionary";
@@ -62,6 +62,19 @@ const Index = () => {
     });
   };
 
+  const handleMenuClick = (option: string) => {
+    if (option === "contactez-nous") {
+      // Naviguer vers la page de contact existante
+      window.location.href = "/contact";
+    } else {
+      toast({
+        title: option.charAt(0).toUpperCase() + option.slice(1),
+        description: "Cette option n'est pas encore disponible",
+        duration: 3000,
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center">
@@ -86,36 +99,62 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-emerald-100 shadow-sm">
+      {/* Header fixe */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-emerald-100 shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-emerald-800">Dictionnaire Nzébi</h1>
-            <Link to="/contact">
-              <Button variant="outline" size="sm">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Contact
-              </Button>
-            </Link>
+            
+            {/* Menu déroulant avec trois points */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white border border-emerald-100 shadow-lg">
+                <DropdownMenuItem onClick={() => handleMenuClick("paramètres")} className="cursor-pointer">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Paramètres
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuClick("contactez-nous")} className="cursor-pointer">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Contactez-nous
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuClick("confidentialité")} className="cursor-pointer">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Confidentialité
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleMenuClick("version")} className="cursor-pointer">
+                  <Info className="w-4 h-4 mr-2" />
+                  Version
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuClick("à propos")} className="cursor-pointer">
+                  <Info className="w-4 h-4 mr-2" />
+                  À propos
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Barre de recherche dans le header fixe */}
+          <div className="mt-4">
+            <div className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500 w-5 h-5" />
+              <Input
+                placeholder="Rechercher un mot en Nzébi, en français ou par nature grammaticale..."
+                className="pl-12 pr-4 py-3 text-lg border-emerald-200 focus:border-emerald-400 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-6">
-        {/* Barre de recherche */}
-        <div className="mb-6">
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500 w-5 h-5" />
-            <Input
-              placeholder="Rechercher un mot en Nzébi, en français ou par nature grammaticale..."
-              className="pl-12 pr-4 py-3 text-lg border-emerald-200 focus:border-emerald-400 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-
         {/* Onglets par nature grammaticale */}
         <div className="max-w-4xl mx-auto">
           {Object.keys(groupedWords).length === 0 && (
