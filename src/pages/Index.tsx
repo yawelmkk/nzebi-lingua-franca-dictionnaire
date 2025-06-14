@@ -49,8 +49,8 @@ const Index = () => {
     } else if (option === "à propos") {
       toast({
         title: "À propos",
-        description: "Cette application est un dictionnaire numérique Nzébi–Français pour faciliter l'apprentissage et la préservation de la langue Nzébi.\n\nLe Nzébi est une langue bantoue parlée au Gabon, en République du Congo et en République démocratique du Congo. Cette application s'inscrit dans une démarche de revalorisation culturelle et linguistique.\n\nCréée par le groupe Langue Nzébi Officiel, elle propose un contenu fiable et fidèle à la langue parlée par les locuteurs natifs.\n\nL'application évolue constamment avec de nouveaux mots, corrections communautaires et exemples d'utilisation.\n\nPour toute correction ou contribution, contactez-nous via le menu.",
-        duration: 8000,
+        description: "Dictionnaire numérique Nzébi–Français pour préserver cette langue bantoue du Gabon, Congo et RDC.\n\nCréé par Langue Nzébi Officiel pour offrir un contenu fiable aux locuteurs natifs.\n\nContributions et corrections bienvenues via 'Contactez-nous'.",
+        duration: 6000,
       });
     } else {
       toast({
