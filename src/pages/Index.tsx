@@ -1,9 +1,9 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Search, Volume2, MoreHorizontal, Settings, MessageCircle, Shield, Info, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -15,18 +15,6 @@ const Index = () => {
   const { toast } = useToast();
   const { words, loading, error } = useDictionary();
 
-  // Mapper les parties du discours vers des natures grammaticales
-  const partOfSpeechToGrammar = {
-    "noun": "nom",
-    "verb": "verbe", 
-    "adjective": "adjectif",
-    "adverb": "adverbe",
-    "pronoun": "pronom",
-    "preposition": "préposition",
-    "conjunction": "conjonction",
-    "interjection": "interjection"
-  };
-
   // Filtrer les mots selon la recherche
   const filteredWords = searchTerm.trim() 
     ? words.filter(word => 
@@ -36,22 +24,8 @@ const Index = () => {
       )
     : words;
 
-  // Grouper par nature grammaticale
-  const groupedWords = filteredWords.reduce((acc, word) => {
-    const grammar = word.part_of_speech 
-      ? partOfSpeechToGrammar[word.part_of_speech as keyof typeof partOfSpeechToGrammar] || word.part_of_speech
-      : "autre";
-    if (!acc[grammar]) {
-      acc[grammar] = [];
-    }
-    acc[grammar].push(word);
-    return acc;
-  }, {} as Record<string, typeof words>);
-
-  // Trier chaque groupe alphabétiquement
-  Object.keys(groupedWords).forEach(key => {
-    groupedWords[key].sort((a, b) => a.nzebi_word.localeCompare(b.nzebi_word));
-  });
+  // Trier alphabétiquement par mot Nzébi
+  const sortedWords = filteredWords.sort((a, b) => a.nzebi_word.localeCompare(b.nzebi_word));
 
   const handleSoundClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -155,119 +129,99 @@ const Index = () => {
 
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-6">
-        {/* Onglets par nature grammaticale */}
         <div className="max-w-4xl mx-auto">
-          {Object.keys(groupedWords).length === 0 && (
+          {sortedWords.length === 0 && (
             <p className="text-center text-emerald-500 mt-16 text-lg">
               Aucun mot trouvé.
             </p>
           )}
 
-          {Object.keys(groupedWords).length > 0 && (
-            <Tabs defaultValue={Object.keys(groupedWords)[0]} className="w-full">
-              <TabsList className="grid w-full grid-cols-auto mb-6 bg-white/80 backdrop-blur-sm">
-                {Object.keys(groupedWords).map((grammar) => (
-                  <TabsTrigger 
-                    key={grammar} 
-                    value={grammar}
-                    className="capitalize data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700"
-                  >
-                    {grammar}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+          {/* Liste simple des mots sans regroupement par catégorie */}
+          <Accordion type="single" collapsible className="space-y-3">
+            {sortedWords.map((word) => (
+              <AccordionItem 
+                key={word.id} 
+                value={word.id}
+                className="bg-white/90 backdrop-blur-sm rounded-lg border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center justify-between w-full">
+                    {/* Partie gauche avec barre verte et mot */}
+                    <div className="flex items-center gap-4">
+                      <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl font-semibold text-emerald-800">
+                          {word.nzebi_word}
+                        </span>
+                        <button 
+                          className="p-1 hover:bg-emerald-50 rounded-full transition-colors"
+                          onClick={handleSoundClick}
+                        >
+                          <Volume2 className="w-5 h-5 text-emerald-600" />
+                        </button>
+                      </div>
+                    </div>
 
-              {Object.entries(groupedWords).map(([grammar, wordsInGrammar]) => (
-                <TabsContent key={grammar} value={grammar} className="mt-0">
-                  <Accordion type="single" collapsible className="space-y-3">
-                    {wordsInGrammar.map((word) => (
-                      <AccordionItem 
-                        key={word.id} 
-                        value={word.id}
-                        className="bg-white/90 backdrop-blur-sm rounded-lg border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200"
-                      >
-                        <AccordionTrigger className="px-4 py-4 hover:no-underline">
-                          <div className="flex items-center justify-between w-full">
-                            {/* Partie gauche avec barre verte et mot */}
-                            <div className="flex items-center gap-4">
-                              <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xl font-semibold text-emerald-800">
-                                  {word.nzebi_word}
-                                </span>
-                                <button 
-                                  className="p-1 hover:bg-emerald-50 rounded-full transition-colors"
-                                  onClick={handleSoundClick}
-                                >
-                                  <Volume2 className="w-5 h-5 text-emerald-600" />
-                                </button>
-                              </div>
-                            </div>
+                    {/* Partie droite avec badge de nature grammaticale */}
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200 mr-4"
+                    >
+                      {word.part_of_speech || "autre"}
+                    </Badge>
+                  </div>
+                </AccordionTrigger>
+                
+                <AccordionContent className="px-4 pb-4">
+                  <div className="ml-5 space-y-3">
+                    {/* Traduction française */}
+                    <div>
+                      <h4 className="font-semibold text-emerald-700 mb-1">Traduction française :</h4>
+                      <p className="text-gray-700">{word.french_word}</p>
+                    </div>
+                    
+                    {/* Nature du mot */}
+                    <div>
+                      <h4 className="font-semibold text-emerald-700 mb-1">Nature :</h4>
+                      <p className="text-gray-700 capitalize">{word.part_of_speech || "autre"}</p>
+                    </div>
+                    
+                    {/* Exemple en Nzébi s'il existe */}
+                    {word.example_nzebi && (
+                      <div>
+                        <h4 className="font-semibold text-emerald-700 mb-1">Exemple en Nzébi :</h4>
+                        <p className="text-gray-700 italic">{word.example_nzebi}</p>
+                      </div>
+                    )}
 
-                            {/* Partie droite avec badge de nature grammaticale */}
-                            <Badge 
-                              variant="secondary" 
-                              className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200 mr-4"
-                            >
-                              {word.part_of_speech || "autre"}
-                            </Badge>
-                          </div>
-                        </AccordionTrigger>
-                        
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="ml-5 space-y-3">
-                            {/* Traduction française */}
-                            <div>
-                              <h4 className="font-semibold text-emerald-700 mb-1">Traduction française :</h4>
-                              <p className="text-gray-700">{word.french_word}</p>
-                            </div>
-                            
-                            {/* Nature du mot */}
-                            <div>
-                              <h4 className="font-semibold text-emerald-700 mb-1">Nature :</h4>
-                              <p className="text-gray-700 capitalize">{grammar}</p>
-                            </div>
-                            
-                            {/* Exemple en Nzébi s'il existe */}
-                            {word.example_nzebi && (
-                              <div>
-                                <h4 className="font-semibold text-emerald-700 mb-1">Exemple en Nzébi :</h4>
-                                <p className="text-gray-700 italic">{word.example_nzebi}</p>
-                              </div>
-                            )}
+                    {/* Exemple en français s'il existe */}
+                    {word.example_french && (
+                      <div>
+                        <h4 className="font-semibold text-emerald-700 mb-1">Exemple en français :</h4>
+                        <p className="text-gray-700 italic">{word.example_french}</p>
+                      </div>
+                    )}
 
-                            {/* Exemple en français s'il existe */}
-                            {word.example_french && (
-                              <div>
-                                <h4 className="font-semibold text-emerald-700 mb-1">Exemple en français :</h4>
-                                <p className="text-gray-700 italic">{word.example_french}</p>
-                              </div>
-                            )}
+                    {/* Forme plurielle s'il existe */}
+                    {word.plural_form && (
+                      <div>
+                        <h4 className="font-semibold text-emerald-700 mb-1">Forme plurielle :</h4>
+                        <p className="text-gray-700">{word.plural_form}</p>
+                      </div>
+                    )}
 
-                            {/* Forme plurielle s'il existe */}
-                            {word.plural_form && (
-                              <div>
-                                <h4 className="font-semibold text-emerald-700 mb-1">Forme plurielle :</h4>
-                                <p className="text-gray-700">{word.plural_form}</p>
-                              </div>
-                            )}
-
-                            {/* Synonymes s'ils existent */}
-                            {word.synonyms && (
-                              <div>
-                                <h4 className="font-semibold text-emerald-700 mb-1">Synonymes :</h4>
-                                <p className="text-gray-700">{word.synonyms}</p>
-                              </div>
-                            )}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </TabsContent>
-              ))}
-            </Tabs>
-          )}
+                    {/* Synonymes s'ils existent */}
+                    {word.synonyms && (
+                      <div>
+                        <h4 className="font-semibold text-emerald-700 mb-1">Synonymes :</h4>
+                        <p className="text-gray-700">{word.synonyms}</p>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </div>
