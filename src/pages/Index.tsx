@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,12 @@ const Index = () => {
         title: "Version de l'application",
         description: "Version: 1.1.2",
         duration: 3000,
+      });
+    } else if (option === "confidentialité") {
+      toast({
+        title: "Politique de confidentialité",
+        description: "Politique de confidentialité\nDernière mise à jour : 14 juin 2025\n\nNous respectons votre vie privée. Cette application, développée par le groupe Langue Nzébi Officiel, a été conçue dans un esprit éducatif et communautaire. À ce titre, nous nous engageons à protéger les données personnelles des utilisateurs.\n\n1. Données collectées\nNous ne collectons aucune donnée personnelle ni aucune information d'identification concernant les utilisateurs de cette application.\n\nL'application ne demande pas :\nd'accès à vos contacts,\nde localisation,\nde compte utilisateur,\nni d'autres permissions sensibles.\n\n2. Aucune publicité ni suivi\nL'application ne contient aucune publicité, et aucun outil de suivi tiers (comme Google Analytics, Facebook SDK, etc.) n'est intégré.\n\n3. Fonctionnalités communautaires\nSi vous choisissez de nous contacter via l'option « Contactez-nous » dans l'application, cela ouvrira simplement votre application d'e-mail. Vous êtes alors libre de nous écrire, mais aucune information n'est enregistrée par l'application elle-même.\n\n4. Sécurité\nMême si nous ne collectons aucune donnée, nous mettons un point d'honneur à maintenir l'application sécurisée et stable pour tous les utilisateurs.\n\n5. Modifications\nCette politique de confidentialité peut être mise à jour si de nouvelles fonctionnalités sont ajoutées. Dans ce cas, nous vous en informerons directement dans l'application.",
+        duration: 12000,
       });
     } else if (option === "à propos") {
       toast({
