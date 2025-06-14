@@ -49,8 +49,8 @@ const Index = () => {
     } else if (option === "à propos") {
       toast({
         title: "À propos",
-        description: "Dictionnaire numérique Nzébi–Français pour préserver cette langue bantoue du Gabon, Congo et RDC.\n\nCréé par Langue Nzébi Officiel pour offrir un contenu fiable aux locuteurs natifs.\n\nContributions et corrections bienvenues via 'Contactez-nous'.",
-        duration: 6000,
+        description: "Cette application est un dictionnaire numérique Nzébi–Français conçu pour faciliter l'apprentissage, la préservation et la valorisation de la langue Nzébi.\n\nLe Nzébi est une langue bantoue parlée principalement au Gabon, en République du Congo et en République démocratique du Congo, par le peuple Nzébi. Comme beaucoup d'autres langues africaines, elle est aujourd'hui menacée par la disparition progressive des langues locales au profit de langues dominantes comme le français.\nCette application s'inscrit donc dans une démarche de revalorisation culturelle et linguistique.\n\nElle a été créée par le groupe Langue Nzébi Officiel, une initiative collective qui mène des recherches linguistiques, culturelles et historiques pour proposer un contenu fiable, enrichi et fidèle à la langue telle qu'elle est parlée par les locuteurs natifs.\n\nL'application est en constante évolution et sera régulièrement mise à jour pour intégrer :\n\nde nouveaux mots,\n\ndes corrections ou suggestions de la communauté,\n\ndes exemples d'utilisation,\n\net éventuellement, des fichiers audio pour la prononciation.\n\nCette initiative est avant tout un projet communautaire et éducatif, ouvert à tous ceux qui veulent (re)découvrir le Nzébi, que ce soit pour des raisons culturelles, personnelles ou académiques.\n\nSi vous remarquez une erreur ou souhaitez proposer une correction ou une contribution, vous pouvez nous contacter directement via l'option « Contactez-nous » dans le menu.\n\nMerci de faire partie de ce voyage vers la sauvegarde et la transmission du patrimoine linguistique Nzébi.",
+        duration: 10000,
       });
     } else {
       toast({
