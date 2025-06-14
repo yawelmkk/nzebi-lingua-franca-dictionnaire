@@ -20,23 +20,44 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    console.log('Fetching words from database...')
+    console.log('Fetching dictionary from JSON file...')
     
-    // Fetch all words from the database
-    const { data: words, error } = await supabase
-      .from('words')
-      .select('*')
-      .order('nzebi_word')
+    // Download the JSON file from storage
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('dictionary')
+      .download('dictionary.json')
 
-    if (error) {
-      console.error('Database error:', error)
-      throw error
+    if (downloadError) {
+      console.error('Error downloading dictionary file:', downloadError)
+      // Fallback to database if file doesn't exist
+      console.log('Falling back to database...')
+      const { data: words, error: dbError } = await supabase
+        .from('words')
+        .select('*')
+        .order('nzebi_word')
+
+      if (dbError) {
+        throw dbError
+      }
+
+      console.log(`Successfully fetched ${words?.length || 0} words from database`)
+      return new Response(
+        JSON.stringify(words),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
     }
 
-    console.log(`Successfully fetched ${words?.length || 0} words`)
+    // Convert the file data to text and parse JSON
+    const fileText = await fileData.text()
+    const dictionaryData = JSON.parse(fileText)
+
+    console.log(`Successfully loaded dictionary from JSON file with ${dictionaryData?.length || 0} entries`)
 
     return new Response(
-      JSON.stringify(words),
+      JSON.stringify(dictionaryData),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
