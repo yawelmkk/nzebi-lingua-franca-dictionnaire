@@ -1,12 +1,12 @@
 
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Search, Volume2 } from "lucide-react";
 import { mockDictionary } from "@/data/mockDictionary";
 
 const Explore = () => {
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Filtrer les mots selon la recherche (Nzébi ou FR)
   const filteredWords = useMemo(() => {
@@ -25,104 +25,80 @@ const Explore = () => {
     [filteredWords]
   );
 
-  // Afficher la traduction/fr quand le mot est cliqué
-  const handleExpand = (id: string) => {
-    setExpandedId((curr) => (curr === id ? null : id));
-  };
-
-  // Recherche avec bouton (pour mobiles)
-  const onFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // On ne fait rien de spécial ici, le filtre est déjà actif sur la search
-  };
-
   return (
-    <div
-      className="min-h-screen w-full flex flex-col items-center
-        bg-gradient-to-br from-blue-50 via-purple-50 to-violet-100 py-0 px-0"
-      style={{ minHeight: "100dvh" }} // mobile safe
-    >
-      {/* Champ de recherche centré */}
-      <form
-        onSubmit={onFormSubmit}
-        className="w-full flex justify-center"
-        autoComplete="off"
-        role="search"
-      >
-        <div
-          className="
-            flex w-full max-w-xl mt-12 mb-10 items-center px-2 gap-2
-            rounded-xl bg-white/60 shadow
-            border border-[#e8e8fd]
-          "
-        >
-          <span className="pl-2 pr-1 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="7" strokeWidth="2"/><path strokeWidth="2" d="M21 21l-4.35-4.35"/></svg>
-          </span>
-          <Input
-            placeholder="Rechercher un mot…"
-            className="flex-1 bg-transparent border-none focus:ring-0 text-lg"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Rechercher un mot"
-          />
-          <Button
-            type="submit"
-            className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-md font-semibold text-base shadow-none"
-          >
-            Rechercher
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
+      {/* Header avec titre */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-emerald-100 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-emerald-800">Dictionnaire Nzébi</h1>
+            <div className="flex items-center text-emerald-600">
+              <span className="text-sm">•••</span>
+            </div>
+          </div>
         </div>
-      </form>
+      </div>
 
-      {/* Liste de mots simplifiée */}
-      <div className="w-full max-w-xl px-2">
-        {sorted.length === 0 && (
-          <p className="text-center text-gray-400 mt-16 text-lg">
-            Aucun mot trouvé.
-          </p>
-        )}
-        <ul className="space-y-3">
-          {sorted.map((word) => {
-            const expanded = expandedId === word.id;
-            return (
-              <li
-                key={word.id}
-                className="
-                  bg-white rounded-xl p-0 border border-[#ebeafc] shadow
-                  hover:bg-violet-50 transition-all cursor-pointer
-                  "
-                onClick={() => handleExpand(word.id)}
-                tabIndex={0}
-                aria-expanded={expanded}
-                role="button"
-              >
-                <div className="flex items-center justify-between px-4 py-4">
-                  <span className="text-lg sm:text-xl font-semibold text-violet-700">
-                    {word.nzebi}
-                  </span>
-                </div>
-                {/* Animation pour la traduction */}
-                <div
-                  className={`transition-all duration-200 overflow-hidden px-4 ${
-                    expanded
-                      ? "max-h-32 py-2 opacity-100"
-                      : "max-h-0 py-0 opacity-0 pointer-events-none"
-                  }`}
-                  style={{ background: "#f4f3ff" }}
-                >
-                  <div className="text-gray-800 text-base font-medium">
-                    {word.french}
+      {/* Contenu principal */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Barre de recherche */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500 w-5 h-5" />
+            <Input
+              placeholder="Rechercher un mot en Nzébi ou en français..."
+              className="pl-12 pr-4 py-3 text-lg border-emerald-200 focus:border-emerald-400 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Liste des mots */}
+        <div className="space-y-3">
+          {sorted.length === 0 && (
+            <p className="text-center text-emerald-500 mt-16 text-lg">
+              Aucun mot trouvé.
+            </p>
+          )}
+          
+          {sorted.map((word) => (
+            <div
+              key={word.id}
+              className="bg-white/90 backdrop-blur-sm rounded-lg border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-center justify-between p-4">
+                {/* Partie gauche avec barre verte et mot */}
+                <div className="flex items-center gap-4">
+                  <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl font-semibold text-emerald-800">
+                      {word.nzebi}
+                    </span>
+                    <button className="p-1 hover:bg-emerald-50 rounded-full transition-colors">
+                      <Volume2 className="w-5 h-5 text-emerald-600" />
+                    </button>
                   </div>
-                  {word.example && (
-                    <div className="text-gray-500 text-sm italic mt-1">“{word.example}”</div>
-                  )}
                 </div>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="h-20" /> {/* Pour espace bas mobile */}
+
+                {/* Partie droite avec badge de catégorie */}
+                <div className="flex items-center gap-2">
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200"
+                  >
+                    {word.category}
+                  </Badge>
+                  <button className="p-1">
+                    <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
