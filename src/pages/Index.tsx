@@ -94,15 +94,15 @@ const Index = () => {
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
               <Book className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
-              <CardTitle>Liste Alphabétique</CardTitle>
+              <CardTitle>Explorer les mots</CardTitle>
               <CardDescription>
-                Parcourez tous les mots disponibles dans l'ordre alphabétique
+                Découvrez les mots Nzébi de manière interactive en cliquant pour révéler les traductions
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link to="/dictionary">
+              <Link to="/explore">
                 <Button variant="outline" className="w-full">
-                  Voir le dictionnaire
+                  Explorer maintenant
                 </Button>
               </Link>
             </CardContent>
@@ -111,15 +111,15 @@ const Index = () => {
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
               <Users className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
-              <CardTitle>Contribuer</CardTitle>
+              <CardTitle>Liste complète</CardTitle>
               <CardDescription>
-                Aidez-nous à améliorer le dictionnaire en signalant des erreurs ou en proposant des corrections
+                Parcourez tous les mots disponibles dans l'ordre alphabétique
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link to="/contact">
+              <Link to="/dictionary">
                 <Button variant="outline" className="w-full">
-                  Nous contacter
+                  Voir le dictionnaire
                 </Button>
               </Link>
             </CardContent>
