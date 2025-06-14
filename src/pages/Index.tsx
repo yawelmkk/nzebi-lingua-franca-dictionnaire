@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Book, Users, MessageCircle } from "lucide-react";
+import { Search, Book, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -42,15 +42,6 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8">
             Un dictionnaire numérique moderne pour apprendre et comprendre la langue Nzébi avec des traductions en français.
           </p>
-          
-          {/* Image placeholder */}
-          <div className="mb-8">
-            <img 
-              src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=400&fit=crop" 
-              alt="Dictionnaire Nzébi-Français" 
-              className="rounded-lg shadow-lg mx-auto w-full max-w-2xl h-64 object-cover"
-            />
-          </div>
 
           {/* Search Bar */}
           <div className="flex gap-2 max-w-md mx-auto mb-8">
@@ -71,26 +62,9 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Single Feature - Explorer les mots */}
       <section className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <Search className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
-              <CardTitle>Recherche Intelligente</CardTitle>
-              <CardDescription>
-                Recherchez des mots en Nzébi ou en français et obtenez des traductions instantanées
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link to="/search">
-                <Button variant="outline" className="w-full">
-                  Commencer la recherche
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
+        <div className="max-w-md mx-auto">
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
               <Book className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
@@ -103,23 +77,6 @@ const Index = () => {
               <Link to="/explore">
                 <Button variant="outline" className="w-full">
                   Explorer maintenant
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <Users className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
-              <CardTitle>Liste complète</CardTitle>
-              <CardDescription>
-                Parcourez tous les mots disponibles dans l'ordre alphabétique
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link to="/dictionary">
-                <Button variant="outline" className="w-full">
-                  Voir le dictionnaire
                 </Button>
               </Link>
             </CardContent>
