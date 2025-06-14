@@ -20,15 +20,15 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    console.log('Fetching dictionary from dictionnaire.json file...')
+    console.log('Fetching dictionary from dictionnaire.json file in dictionnaire bucket...')
     
-    // Download the JSON file from storage (using your existing file name)
+    // Download the JSON file from your existing 'dictionnaire' bucket
     const { data: fileData, error: downloadError } = await supabase.storage
-      .from('dictionary')
+      .from('dictionnaire')
       .download('dictionnaire.json')
 
     if (downloadError) {
-      console.error('Error downloading dictionnaire.json file:', downloadError)
+      console.error('Error downloading dictionnaire.json file from dictionnaire bucket:', downloadError)
       // Fallback to database if file doesn't exist
       console.log('Falling back to database...')
       const { data: words, error: dbError } = await supabase
@@ -54,7 +54,7 @@ serve(async (req) => {
     const fileText = await fileData.text()
     const dictionaryData = JSON.parse(fileText)
 
-    console.log(`Successfully loaded dictionary from dictionnaire.json file with ${dictionaryData?.length || 0} entries`)
+    console.log(`Successfully loaded dictionary from dictionnaire.json file in dictionnaire bucket with ${dictionaryData?.length || 0} entries`)
 
     return new Response(
       JSON.stringify(dictionaryData),
