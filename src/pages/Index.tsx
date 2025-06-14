@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +69,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center">
+      <div className="h-screen w-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center fixed inset-0">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
           <p className="text-emerald-600">Chargement du dictionnaire...</p>
@@ -79,7 +80,7 @@ const Index = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center">
+      <div className="h-screen w-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center fixed inset-0">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <Button onClick={() => window.location.reload()}>Réessayer</Button>
@@ -89,10 +90,10 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
+    <div className="h-screen w-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex flex-col fixed inset-0 overflow-hidden">
       {/* Header fixe */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-emerald-100 shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-emerald-100 shadow-sm flex-shrink-0 z-50">
+        <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-emerald-800">Dictionnaire Nzébi</h1>
             
@@ -103,7 +104,7 @@ const Index = () => {
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white border border-emerald-100 shadow-lg">
+              <DropdownMenuContent align="end" className="bg-white border border-emerald-100 shadow-lg z-50">
                 <DropdownMenuItem onClick={() => handleMenuClick("paramètres")} className="cursor-pointer">
                   <Settings className="w-4 h-4 mr-2" />
                   Paramètres
@@ -144,101 +145,103 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Contenu principal */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
-          {sortedWords.length === 0 && (
-            <p className="text-center text-emerald-500 mt-16 text-lg">
-              Aucun mot trouvé.
-            </p>
-          )}
+      {/* Contenu principal avec scroll */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 py-6">
+          <div className="max-w-4xl mx-auto">
+            {sortedWords.length === 0 && (
+              <p className="text-center text-emerald-500 mt-16 text-lg">
+                Aucun mot trouvé.
+              </p>
+            )}
 
-          {/* Liste simple des mots sans regroupement par catégorie */}
-          <Accordion type="single" collapsible className="space-y-3">
-            {sortedWords.map((word) => (
-              <AccordionItem 
-                key={word.id} 
-                value={word.id}
-                className="bg-white/90 backdrop-blur-sm rounded-lg border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <AccordionTrigger className="px-4 py-4 hover:no-underline">
-                  <div className="flex items-center justify-between w-full">
-                    {/* Partie gauche avec barre verte et mot */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl font-semibold text-emerald-800">
-                          {word.nzebi_word}
-                        </span>
-                        <button 
-                          className="p-1 hover:bg-emerald-50 rounded-full transition-colors"
-                          onClick={handleSoundClick}
-                        >
-                          <Volume2 className="w-5 h-5 text-emerald-600" />
-                        </button>
+            {/* Liste simple des mots sans regroupement par catégorie */}
+            <Accordion type="single" collapsible className="space-y-3">
+              {sortedWords.map((word) => (
+                <AccordionItem 
+                  key={word.id} 
+                  value={word.id}
+                  className="bg-white/90 backdrop-blur-sm rounded-lg border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                    <div className="flex items-center justify-between w-full">
+                      {/* Partie gauche avec barre verte et mot */}
+                      <div className="flex items-center gap-4">
+                        <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl font-semibold text-emerald-800">
+                            {word.nzebi_word}
+                          </span>
+                          <button 
+                            className="p-1 hover:bg-emerald-50 rounded-full transition-colors"
+                            onClick={handleSoundClick}
+                          >
+                            <Volume2 className="w-5 h-5 text-emerald-600" />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Partie droite avec badge de nature grammaticale */}
+                      <Badge 
+                        variant="secondary" 
+                        className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200 mr-4"
+                      >
+                        {word.part_of_speech || "autre"}
+                      </Badge>
                     </div>
+                  </AccordionTrigger>
+                  
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="ml-5 space-y-3">
+                      {/* Traduction française */}
+                      <div>
+                        <h4 className="font-semibold text-emerald-700 mb-1">Traduction française :</h4>
+                        <p className="text-gray-700">{word.french_word}</p>
+                      </div>
+                      
+                      {/* Nature du mot */}
+                      <div>
+                        <h4 className="font-semibold text-emerald-700 mb-1">Nature :</h4>
+                        <p className="text-gray-700 capitalize">{word.part_of_speech || "autre"}</p>
+                      </div>
+                      
+                      {/* Exemple en Nzébi s'il existe */}
+                      {word.example_nzebi && (
+                        <div>
+                          <h4 className="font-semibold text-emerald-700 mb-1">Exemple en Nzébi :</h4>
+                          <p className="text-gray-700 italic">{word.example_nzebi}</p>
+                        </div>
+                      )}
 
-                    {/* Partie droite avec badge de nature grammaticale */}
-                    <Badge 
-                      variant="secondary" 
-                      className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200 mr-4"
-                    >
-                      {word.part_of_speech || "autre"}
-                    </Badge>
-                  </div>
-                </AccordionTrigger>
-                
-                <AccordionContent className="px-4 pb-4">
-                  <div className="ml-5 space-y-3">
-                    {/* Traduction française */}
-                    <div>
-                      <h4 className="font-semibold text-emerald-700 mb-1">Traduction française :</h4>
-                      <p className="text-gray-700">{word.french_word}</p>
+                      {/* Exemple en français s'il existe */}
+                      {word.example_french && (
+                        <div>
+                          <h4 className="font-semibold text-emerald-700 mb-1">Exemple en français :</h4>
+                          <p className="text-gray-700 italic">{word.example_french}</p>
+                        </div>
+                      )}
+
+                      {/* Forme plurielle s'il existe */}
+                      {word.plural_form && (
+                        <div>
+                          <h4 className="font-semibold text-emerald-700 mb-1">Forme plurielle :</h4>
+                          <p className="text-gray-700">{word.plural_form}</p>
+                        </div>
+                      )}
+
+                      {/* Synonymes s'ils existent */}
+                      {word.synonyms && (
+                        <div>
+                          <h4 className="font-semibold text-emerald-700 mb-1">Synonymes :</h4>
+                          <p className="text-gray-700">{word.synonyms}</p>
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Nature du mot */}
-                    <div>
-                      <h4 className="font-semibold text-emerald-700 mb-1">Nature :</h4>
-                      <p className="text-gray-700 capitalize">{word.part_of_speech || "autre"}</p>
-                    </div>
-                    
-                    {/* Exemple en Nzébi s'il existe */}
-                    {word.example_nzebi && (
-                      <div>
-                        <h4 className="font-semibold text-emerald-700 mb-1">Exemple en Nzébi :</h4>
-                        <p className="text-gray-700 italic">{word.example_nzebi}</p>
-                      </div>
-                    )}
-
-                    {/* Exemple en français s'il existe */}
-                    {word.example_french && (
-                      <div>
-                        <h4 className="font-semibold text-emerald-700 mb-1">Exemple en français :</h4>
-                        <p className="text-gray-700 italic">{word.example_french}</p>
-                      </div>
-                    )}
-
-                    {/* Forme plurielle s'il existe */}
-                    {word.plural_form && (
-                      <div>
-                        <h4 className="font-semibold text-emerald-700 mb-1">Forme plurielle :</h4>
-                        <p className="text-gray-700">{word.plural_form}</p>
-                      </div>
-                    )}
-
-                    {/* Synonymes s'ils existent */}
-                    {word.synonyms && (
-                      <div>
-                        <h4 className="font-semibold text-emerald-700 mb-1">Synonymes :</h4>
-                        <p className="text-gray-700">{word.synonyms}</p>
-                      </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
       </div>
     </div>
