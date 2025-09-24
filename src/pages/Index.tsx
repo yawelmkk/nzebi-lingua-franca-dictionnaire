@@ -169,7 +169,7 @@ const Index = () => {
                       <div className="flex items-center gap-4">
                         <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
                         <div className="flex items-center gap-3">
-                          <span className="text-xl font-semibold text-emerald-800">
+                          <span className="text-2xl font-semibold text-emerald-800">
                             {word.nzebi_word}
                           </span>
                           <button 
@@ -196,7 +196,7 @@ const Index = () => {
                       {/* Traduction française */}
                       <div>
                         <h4 className="font-semibold text-emerald-700 mb-1">Traduction française :</h4>
-                        <p className="text-gray-700">{word.french_word}</p>
+                        <p className="text-xl font-medium text-gray-700">{word.french_word}</p>
                       </div>
                       
                       {/* Nature du mot */}
@@ -217,7 +217,7 @@ const Index = () => {
                       {word.example_french && (
                         <div>
                           <h4 className="font-semibold text-emerald-700 mb-1">Exemple en français :</h4>
-                          <p className="text-gray-700 italic">{word.example_french}</p>
+                          <p className="text-lg text-gray-700 italic">{word.example_french}</p>
                         </div>
                       )}
 

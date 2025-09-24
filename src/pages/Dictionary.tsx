@@ -120,7 +120,7 @@ const Dictionary = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-lg font-semibold text-gray-800">
+                            <h3 className="text-xl font-semibold text-gray-800">
                               {word.nzebi}
                             </h3>
                             {word.category && (
@@ -129,7 +129,7 @@ const Dictionary = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-indigo-600 mb-1">
+                          <p className="text-xl font-medium text-indigo-600 mb-1">
                             {word.french}
                           </p>
                           {word.example && (

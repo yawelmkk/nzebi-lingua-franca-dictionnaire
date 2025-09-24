@@ -101,10 +101,10 @@ const Search = () => {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                      <h3 className="text-2xl font-semibold text-gray-800 mb-1">
                         {word.nzebi}
                       </h3>
-                      <p className="text-lg text-indigo-600 mb-2">
+                      <p className="text-xl font-medium text-indigo-600 mb-2">
                         {word.french}
                       </p>
                       {word.category && (
