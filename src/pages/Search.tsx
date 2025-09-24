@@ -1,48 +1,59 @@
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search as SearchIcon, ArrowLeft } from "lucide-react";
+import { Search as SearchIcon, ArrowLeft, Loader2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { mockDictionary } from "@/data/mockDictionary";
+import { useDictionary } from "@/hooks/useDictionary";
+import { normalizeString } from "@/lib/utils";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || "");
-  const [results, setResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { words, loading, error } = useDictionary();
 
-  const performSearch = (term: string) => {
-    if (!term.trim()) {
-      setResults([]);
-      return;
-    }
-
-    setIsLoading(true);
+  // Recherche instantanée et dynamique avec normalisation des accents
+  const results = useMemo(() => {
+    if (!searchTerm.trim()) return [];
     
-    // Simulate search with delay
-    setTimeout(() => {
-      const filtered = mockDictionary.filter(word => 
-        word.nzebi.toLowerCase().includes(term.toLowerCase()) ||
-        word.french.toLowerCase().includes(term.toLowerCase()) ||
-        word.example?.toLowerCase().includes(term.toLowerCase())
-      );
-      setResults(filtered);
-      setIsLoading(false);
-    }, 300);
-  };
+    const normalizedSearch = normalizeString(searchTerm);
+    
+    return words.filter(word => {
+      const normalizedNzebi = normalizeString(word.nzebi_word);
+      const normalizedFrench = normalizeString(word.french_word);
+      const normalizedExampleNzebi = word.example_nzebi ? normalizeString(word.example_nzebi) : '';
+      const normalizedExampleFrench = word.example_french ? normalizeString(word.example_french) : '';
+      
+      return normalizedNzebi.includes(normalizedSearch) ||
+             normalizedFrench.includes(normalizedSearch) ||
+             normalizedExampleNzebi.includes(normalizedSearch) ||
+             normalizedExampleFrench.includes(normalizedSearch);
+    });
+  }, [searchTerm, words]);
 
-  useEffect(() => {
-    if (searchTerm) {
-      performSearch(searchTerm);
-    }
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <p className="text-indigo-600">Chargement du dictionnaire...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleSearch = () => {
-    performSearch(searchTerm);
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Réessayer</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,35 +75,23 @@ const Search = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto mb-8">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <SearchIcon className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Rechercher en Nzébi ou en français..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="pl-10"
-              />
-            </div>
-            <Button onClick={handleSearch} disabled={isLoading}>
-              {isLoading ? "..." : "Rechercher"}
-            </Button>
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher en Nzébi ou en français (recherche instantanée)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
 
         {/* Results */}
         <div className="max-w-4xl mx-auto">
-          {searchTerm && !isLoading && (
+          {searchTerm && (
             <p className="text-gray-600 mb-4">
               {results.length} résultat(s) pour "{searchTerm}"
             </p>
-          )}
-
-          {isLoading && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Recherche en cours...</p>
-            </div>
           )}
 
           <div className="space-y-4">
@@ -102,19 +101,24 @@ const Search = () => {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h3 className="text-2xl font-semibold text-gray-800 mb-1">
-                        {word.nzebi}
+                        {word.nzebi_word}
                       </h3>
                       <p className="text-xl font-medium text-indigo-600 mb-2">
-                        {word.french}
+                        {word.french_word}
                       </p>
-                      {word.category && (
+                      {word.part_of_speech && (
                         <Badge variant="secondary" className="mb-2">
-                          {word.category}
+                          {word.part_of_speech}
                         </Badge>
                       )}
-                      {word.example && (
-                        <div className="text-sm text-gray-600 italic">
-                          <strong>Exemple :</strong> {word.example}
+                      {word.example_french && (
+                        <div className="text-lg text-gray-600 italic mb-2">
+                          <strong>Exemple français :</strong> {word.example_french}
+                        </div>
+                      )}
+                      {word.example_nzebi && (
+                        <div className="text-lg text-gray-600 italic">
+                          <strong>Exemple nzébi :</strong> {word.example_nzebi}
                         </div>
                       )}
                     </div>
@@ -129,7 +133,7 @@ const Search = () => {
             ))}
           </div>
 
-          {searchTerm && !isLoading && results.length === 0 && (
+          {searchTerm && results.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 mb-4">Aucun résultat trouvé pour "{searchTerm}"</p>
               <Link to="/contact">
