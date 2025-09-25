@@ -100,81 +100,124 @@ class DictionaryService {
     if (!this.searchIndex || !query.trim()) return [];
 
     const normalizedQuery = normalizeString(query);
-    const results: SearchResult[] = [];
     const seenWords = new Set<string>();
+    const results: DictionaryWord[] = [];
 
-    // 1. Recherche exacte (score: 100)
-    const exactMatches = this.searchIndex.exact.get(normalizedQuery) || [];
+    // PRIORITÉ 1: Correspondances exactes
+    const exactMatches = this.getExactMatches(normalizedQuery);
     exactMatches.forEach(word => {
       if (!seenWords.has(word.id)) {
-        results.push({ word, score: 100, matchType: 'exact' });
+        results.push(word);
         seenWords.add(word.id);
       }
     });
 
-    // 2. Recherche par préfixe exact (score: 90)
-    for (const [key, words] of this.searchIndex.exact) {
-      if (key.startsWith(normalizedQuery) && key !== normalizedQuery) {
-        words.forEach(word => {
-          if (!seenWords.has(word.id)) {
-            results.push({ word, score: 90, matchType: 'exact' });
-            seenWords.add(word.id);
-          }
-        });
-      }
-    }
+    // PRIORITÉ 2: Correspondances par préfixe
+    const prefixMatches = this.getPrefixMatches(normalizedQuery);
+    // Trier les correspondances par préfixe par longueur (plus courts = plus pertinents)
+    prefixMatches.sort((a, b) => {
+      const aNorm = normalizeString(a.nzebi_word);
+      const bNorm = normalizeString(b.nzebi_word);
+      const aFrench = normalizeString(a.french_word);
+      const bFrench = normalizeString(b.french_word);
+      
+      // Priorité aux mots qui commencent exactement par la requête
+      const aStartsNzebi = aNorm.startsWith(normalizedQuery);
+      const aStartsFrench = aFrench.startsWith(normalizedQuery);
+      const bStartsNzebi = bNorm.startsWith(normalizedQuery);
+      const bStartsFrench = bFrench.startsWith(normalizedQuery);
+      
+      if ((aStartsNzebi || aStartsFrench) && !(bStartsNzebi || bStartsFrench)) return -1;
+      if (!(aStartsNzebi || aStartsFrench) && (bStartsNzebi || bStartsFrench)) return 1;
+      
+      // Puis par longueur du mot (plus courts en premier)
+      const aMinLength = Math.min(aNorm.length, aFrench.length);
+      const bMinLength = Math.min(bNorm.length, bFrench.length);
+      
+      return aMinLength - bMinLength;
+    });
 
-    // 3. Recherche par racine (stemming) (score: 70)
-    const stemmedQuery = this.stem(normalizedQuery);
-    const stemmedMatches = this.searchIndex.stemmed.get(stemmedQuery) || [];
-    stemmedMatches.forEach(word => {
+    prefixMatches.forEach(word => {
       if (!seenWords.has(word.id)) {
-        results.push({ word, score: 70, matchType: 'stemmed' });
+        results.push(word);
         seenWords.add(word.id);
       }
     });
 
-    // 4. Recherche phonétique (score: 60)
-    const phoneticQuery = this.soundex(normalizedQuery);
-    const phoneticMatches = this.searchIndex.phonetic.get(phoneticQuery) || [];
-    phoneticMatches.forEach(word => {
-      if (!seenWords.has(word.id)) {
-        results.push({ word, score: 60, matchType: 'phonetic' });
-        seenWords.add(word.id);
-      }
-    });
+    // PRIORITÉ 3: Correspondances floues (Levenshtein)
+    if (normalizedQuery.length >= 3) { // Éviter la recherche floue pour les requêtes trop courtes
+      const fuzzyMatches = this.getFuzzyMatches(normalizedQuery, seenWords);
+      results.push(...fuzzyMatches);
+    }
 
-    // 5. Recherche par contenu (score: 50)
+    return results.slice(0, 25); // Limiter à 25 résultats
+  }
+
+  private getExactMatches(query: string): DictionaryWord[] {
+    const matches: DictionaryWord[] = [];
+    
+    // Recherche dans l'index exact
+    const exactWords = this.searchIndex?.exact.get(query) || [];
+    matches.push(...exactWords);
+    
+    return matches;
+  }
+
+  private getPrefixMatches(query: string): DictionaryWord[] {
+    if (!this.searchIndex) return [];
+    
+    const matches: DictionaryWord[] = [];
+    
+    // Recherche tous les mots qui commencent par la requête ou qui contiennent la requête
     for (const [key, words] of this.searchIndex.exact) {
-      if (key.includes(normalizedQuery) && !key.startsWith(normalizedQuery)) {
-        words.forEach(word => {
-          if (!seenWords.has(word.id)) {
-            results.push({ word, score: 50, matchType: 'exact' });
-            seenWords.add(word.id);
-          }
-        });
+      // Préfixe : le mot commence par la requête (mais n'est pas exactement la requête)
+      if (key.length > query.length && key.startsWith(query)) {
+        matches.push(...words);
+      }
+      // Contenu : le mot contient la requête (mais ne commence pas par elle)
+      else if (key.length > query.length && key.includes(query) && !key.startsWith(query)) {
+        matches.push(...words);
       }
     }
+    
+    // Supprimer les doublons
+    const uniqueMatches = matches.filter((word, index, self) => 
+      index === self.findIndex(w => w.id === word.id)
+    );
+    
+    return uniqueMatches;
+  }
 
-    // 6. Recherche floue avec Levenshtein (score: 1-40)
-    if (results.length < 10) {
-      const fuzzyResults = this.fuzzySearch(normalizedQuery, 2);
-      fuzzyResults.forEach(({ word, distance }) => {
-        if (!seenWords.has(word.id)) {
-          const score = Math.max(1, 40 - (distance * 10));
-          results.push({ word, score, matchType: 'fuzzy' });
-          seenWords.add(word.id);
-        }
-      });
-    }
-
-    // Trier par score décroissant puis alphabétiquement
-    results.sort((a, b) => {
-      if (a.score !== b.score) return b.score - a.score;
+  private getFuzzyMatches(query: string, excludeIds: Set<string>): DictionaryWord[] {
+    if (!this.searchIndex) return [];
+    
+    const fuzzyResults: Array<{ word: DictionaryWord; distance: number }> = [];
+    const maxDistance = Math.min(3, Math.floor(query.length / 2)); // Distance maximale adaptative
+    
+    this.searchIndex.words.forEach(word => {
+      if (excludeIds.has(word.id)) return;
+      
+      // Calculer la distance pour les mots nzébi et français
+      const nzebiDistance = this.levenshteinDistance(query, normalizeString(word.nzebi_word));
+      const frenchDistance = this.levenshteinDistance(query, normalizeString(word.french_word));
+      
+      // Prendre la plus petite distance
+      const minDistance = Math.min(nzebiDistance, frenchDistance);
+      
+      // Ajouter seulement si la distance est acceptable
+      if (minDistance <= maxDistance) {
+        fuzzyResults.push({ word, distance: minDistance });
+      }
+    });
+    
+    // Trier par distance croissante (plus petite distance = plus pertinent)
+    fuzzyResults.sort((a, b) => {
+      if (a.distance !== b.distance) return a.distance - b.distance;
+      // En cas d'égalité, trier alphabétiquement
       return a.word.nzebi_word.localeCompare(b.word.nzebi_word);
     });
-
-    return results.slice(0, 20).map(result => result.word);
+    
+    return fuzzyResults.slice(0, 10).map(result => result.word);
   }
 
   private fuzzySearch(query: string, maxDistance: number): Array<{ word: DictionaryWord; distance: number }> {
