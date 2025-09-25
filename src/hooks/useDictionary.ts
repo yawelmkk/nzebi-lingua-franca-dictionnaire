@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { dictionaryService } from '@/services/dictionaryService';
 
 export interface DictionaryWord {
   id: string;
@@ -23,34 +23,29 @@ export const useDictionary = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDictionary = async () => {
+    const initializeDictionary = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        const { data, error } = await supabase.functions.invoke('get-dictionnaire');
-        
-        if (error) {
-          console.error('Erreur lors de la récupération du dictionnaire:', error);
-          setError('Erreur lors du chargement du dictionnaire');
-          return;
-        }
-        
-        if (data && Array.isArray(data)) {
-          setWords(data);
-        } else {
-          setError('Format de données invalide');
-        }
+        await dictionaryService.initialize();
+        setWords(dictionaryService.getWords());
       } catch (err) {
-        console.error('Erreur réseau:', err);
-        setError('Erreur de connexion');
+        console.error('Erreur lors de l\'initialisation du dictionnaire:', err);
+        setError(dictionaryService.getError());
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDictionary();
+    initializeDictionary();
   }, []);
 
   return { words, loading, error };
+};
+
+export const useSearch = () => {
+  return {
+    search: (query: string) => dictionaryService.search(query)
+  };
 };

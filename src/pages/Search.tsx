@@ -6,32 +6,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search as SearchIcon, ArrowLeft, Loader2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useDictionary } from "@/hooks/useDictionary";
-import { normalizeString } from "@/lib/utils";
+import { useDictionary, useSearch } from "@/hooks/useDictionary";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || "");
-  const { words, loading, error } = useDictionary();
+  const { loading, error } = useDictionary();
+  const { search } = useSearch();
 
-  // Recherche instantanée et dynamique avec normalisation des accents
+  // Recherche optimisée avec algorithme de Levenshtein pour la recherche floue
   const results = useMemo(() => {
     if (!searchTerm.trim()) return [];
-    
-    const normalizedSearch = normalizeString(searchTerm);
-    
-    return words.filter(word => {
-      const normalizedNzebi = normalizeString(word.nzebi_word);
-      const normalizedFrench = normalizeString(word.french_word);
-      const normalizedExampleNzebi = word.example_nzebi ? normalizeString(word.example_nzebi) : '';
-      const normalizedExampleFrench = word.example_french ? normalizeString(word.example_french) : '';
-      
-      return normalizedNzebi.includes(normalizedSearch) ||
-             normalizedFrench.includes(normalizedSearch) ||
-             normalizedExampleNzebi.includes(normalizedSearch) ||
-             normalizedExampleFrench.includes(normalizedSearch);
-    });
-  }, [searchTerm, words]);
+    return search(searchTerm);
+  }, [searchTerm, search]);
 
   if (loading) {
     return (
