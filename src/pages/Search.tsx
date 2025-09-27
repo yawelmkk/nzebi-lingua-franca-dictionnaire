@@ -95,18 +95,42 @@ const Search = () => {
                       <p className="text-xl font-medium text-indigo-600 mb-2" translate="no">
                         {word.french_word}
                       </p>
-                      {word.part_of_speech && (
-                        <Badge variant="secondary" className="mb-2">
-                          {word.part_of_speech}
-                        </Badge>
+                      <div className="flex gap-2 flex-wrap mb-2">
+                        {word.part_of_speech && (
+                          <Badge variant="secondary">
+                            {word.part_of_speech}
+                          </Badge>
+                        )}
+                        {word.is_verb && (
+                          <Badge variant="outline">
+                            Verbe
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {word.plural_form && (
+                        <div className="text-sm text-gray-600 mb-1">
+                          <strong>Pluriel :</strong> <span translate="no">{word.plural_form}</span>
+                        </div>
                       )}
+                      {word.imperative && (
+                        <div className="text-sm text-gray-600 mb-1">
+                          <strong>Impératif :</strong> <span translate="no">{word.imperative}</span>
+                        </div>
+                      )}
+                      {word.synonyms && (
+                        <div className="text-sm text-gray-600 mb-2">
+                          <strong>Synonymes :</strong> <span translate="no">{word.synonyms}</span>
+                        </div>
+                      )}
+                      
                       {word.example_french && (
-                        <div className="text-lg text-gray-600 italic mb-2">
+                        <div className="text-sm text-gray-600 italic mb-1">
                           <strong>Exemple français :</strong> <span translate="no">{word.example_french}</span>
                         </div>
                       )}
                       {word.example_nzebi && (
-                        <div className="text-lg text-gray-600 italic">
+                        <div className="text-sm text-gray-600 italic">
                           <strong>Exemple nzébi :</strong> <span translate="no">{word.example_nzebi}</span>
                         </div>
                       )}

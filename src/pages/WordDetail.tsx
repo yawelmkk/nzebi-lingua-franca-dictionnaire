@@ -3,12 +3,35 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Volume2, MessageCircle } from "lucide-react";
-import { mockDictionary } from "@/data/mockDictionary";
+import { ArrowLeft, Volume2, MessageCircle, Loader2 } from "lucide-react";
+import { useDictionary } from "@/hooks/useDictionary";
 
 const WordDetail = () => {
   const { id } = useParams();
-  const word = mockDictionary.find(w => w.id === id);
+  const { words, loading, error } = useDictionary();
+  const word = words.find(w => w.id === id);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <p className="text-indigo-600">Chargement du dictionnaire...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Réessayer</Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!word) {
     return (
@@ -53,17 +76,24 @@ const WordDetail = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-3xl text-gray-800" translate="no">
-                  {word.nzebi}
+                  {word.nzebi_word}
                 </CardTitle>
                 <Button variant="outline" size="sm" onClick={handlePlayAudio}>
                   <Volume2 className="w-4 h-4" />
                 </Button>
               </div>
-              {word.category && (
-                <Badge variant="secondary" className="w-fit">
-                  {word.category}
-                </Badge>
-              )}
+              <div className="flex gap-2 flex-wrap">
+                {word.part_of_speech && (
+                  <Badge variant="secondary">
+                    {word.part_of_speech}
+                  </Badge>
+                )}
+                {word.is_verb && (
+                  <Badge variant="outline">
+                    Verbe
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Translation */}
@@ -72,18 +102,78 @@ const WordDetail = () => {
                   Traduction française
                 </h3>
                 <p className="text-xl text-indigo-600" translate="no">
-                  {word.french}
+                  {word.french_word}
                 </p>
               </div>
 
-              {/* Example */}
-              {word.example && (
+              {/* Additional Word Forms */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {word.plural_form && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                      Forme pluriel
+                    </h3>
+                    <p className="text-lg text-gray-800" translate="no">
+                      {word.plural_form}
+                    </p>
+                  </div>
+                )}
+                
+                {word.imperative && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                      Impératif
+                    </h3>
+                    <p className="text-lg text-gray-800" translate="no">
+                      {word.imperative}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Synonyms */}
+              {word.synonyms && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    Exemple d'utilisation
+                    Synonymes
+                  </h3>
+                  <p className="text-lg text-gray-800" translate="no">
+                    {word.synonyms}
+                  </p>
+                </div>
+              )}
+
+              {/* Scientific Name */}
+              {word.scientific_name && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Nom scientifique
+                  </h3>
+                  <p className="text-lg text-gray-800 italic" translate="no">
+                    {word.scientific_name}
+                  </p>
+                </div>
+              )}
+
+              {/* Examples */}
+              {word.example_nzebi && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Exemple en Nzébi
                   </h3>
                   <p className="text-gray-600 italic bg-gray-50 p-4 rounded-lg" translate="no">
-                    "{word.example}"
+                    "{word.example_nzebi}"
+                  </p>
+                </div>
+              )}
+
+              {word.example_french && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Exemple en français
+                  </h3>
+                  <p className="text-gray-600 italic bg-gray-50 p-4 rounded-lg">
+                    "{word.example_french}"
                   </p>
                 </div>
               )}
@@ -95,7 +185,7 @@ const WordDetail = () => {
                     Longueur
                   </h3>
                   <p className="text-gray-600">
-                    {word.nzebi.length} caractères
+                    {word.nzebi_word.length} caractères
                   </p>
                 </div>
                 <div>
@@ -103,7 +193,7 @@ const WordDetail = () => {
                     Première lettre
                   </h3>
                   <p className="text-gray-600">
-                    {word.nzebi.charAt(0).toUpperCase()}
+                    {word.nzebi_word.charAt(0).toUpperCase()}
                   </p>
                 </div>
               </div>

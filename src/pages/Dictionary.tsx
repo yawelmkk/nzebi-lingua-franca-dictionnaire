@@ -4,42 +4,45 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { mockDictionary } from "@/data/mockDictionary";
+import { useDictionary } from "@/hooks/useDictionary";
 
 const Dictionary = () => {
   const [filter, setFilter] = useState("");
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
+  const { words, loading, error } = useDictionary();
 
   // Generate alphabet
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
   // Filter and sort words
   const filteredWords = useMemo(() => {
-    let words = mockDictionary;
+    if (!words.length) return [];
+    
+    let filteredWords = words;
 
     if (filter) {
-      words = words.filter(word => 
-        word.nzebi.toLowerCase().includes(filter.toLowerCase()) ||
-        word.french.toLowerCase().includes(filter.toLowerCase())
+      filteredWords = filteredWords.filter(word => 
+        word.nzebi_word.toLowerCase().includes(filter.toLowerCase()) ||
+        word.french_word.toLowerCase().includes(filter.toLowerCase())
       );
     }
 
     if (selectedLetter) {
-      words = words.filter(word => 
-        word.nzebi.charAt(0).toUpperCase() === selectedLetter
+      filteredWords = filteredWords.filter(word => 
+        word.nzebi_word.charAt(0).toUpperCase() === selectedLetter
       );
     }
 
-    return words.sort((a, b) => a.nzebi.localeCompare(b.nzebi));
-  }, [filter, selectedLetter]);
+    return filteredWords.sort((a, b) => a.nzebi_word.localeCompare(b.nzebi_word));
+  }, [words, filter, selectedLetter]);
 
   // Group words by first letter
   const groupedWords = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
     filteredWords.forEach(word => {
-      const firstLetter = word.nzebi.charAt(0).toUpperCase();
+      const firstLetter = word.nzebi_word.charAt(0).toUpperCase();
       if (!groups[firstLetter]) {
         groups[firstLetter] = [];
       }
@@ -47,6 +50,28 @@ const Dictionary = () => {
     });
     return groups;
   }, [filteredWords]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <p className="text-indigo-600">Chargement du dictionnaire...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Réessayer</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,20 +146,45 @@ const Dictionary = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="text-xl font-semibold text-gray-800" translate="no">
-                              {word.nzebi}
+                              {word.nzebi_word}
                             </h3>
-                            {word.category && (
+                            {word.part_of_speech && (
                               <Badge variant="secondary" className="text-xs">
-                                {word.category}
+                                {word.part_of_speech}
+                              </Badge>
+                            )}
+                            {word.is_verb && (
+                              <Badge variant="outline" className="text-xs">
+                                Verbe
                               </Badge>
                             )}
                           </div>
                           <p className="text-xl font-medium text-indigo-600 mb-1" translate="no">
-                            {word.french}
+                            {word.french_word}
                           </p>
-                          {word.example && (
+                          {word.plural_form && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>Pluriel :</strong> <span translate="no">{word.plural_form}</span>
+                            </p>
+                          )}
+                          {word.imperative && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>Impératif :</strong> <span translate="no">{word.imperative}</span>
+                            </p>
+                          )}
+                          {word.synonyms && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>Synonymes :</strong> <span translate="no">{word.synonyms}</span>
+                            </p>
+                          )}
+                          {word.example_nzebi && (
+                            <p className="text-sm text-gray-600 italic mb-1">
+                              <strong>Exemple nzébi :</strong> <span translate="no">{word.example_nzebi}</span>
+                            </p>
+                          )}
+                          {word.example_french && (
                             <p className="text-sm text-gray-600 italic" translate="no">
-                              {word.example}
+                              <strong>Exemple français :</strong> {word.example_french}
                             </p>
                           )}
                         </div>
