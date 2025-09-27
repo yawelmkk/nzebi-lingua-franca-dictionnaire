@@ -87,10 +87,10 @@ const Search = () => {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <h3 className="text-2xl font-semibold text-gray-800 mb-1">
+                      <h3 className="text-2xl font-semibold text-gray-800 mb-1" translate="no">
                         {word.nzebi_word}
                       </h3>
-                      <p className="text-xl font-medium text-indigo-600 mb-2">
+                      <p className="text-xl font-medium text-indigo-600 mb-2" translate="no">
                         {word.french_word}
                       </p>
                       {word.part_of_speech && (
@@ -100,12 +100,12 @@ const Search = () => {
                       )}
                       {word.example_french && (
                         <div className="text-lg text-gray-600 italic mb-2">
-                          <strong>Exemple français :</strong> {word.example_french}
+                          <strong>Exemple français :</strong> <span translate="no">{word.example_french}</span>
                         </div>
                       )}
                       {word.example_nzebi && (
                         <div className="text-lg text-gray-600 italic">
-                          <strong>Exemple nzébi :</strong> {word.example_nzebi}
+                          <strong>Exemple nzébi :</strong> <span translate="no">{word.example_nzebi}</span>
                         </div>
                       )}
                     </div>

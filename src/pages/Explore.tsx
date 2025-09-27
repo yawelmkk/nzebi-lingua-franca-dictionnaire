@@ -107,7 +107,7 @@ const Explore = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-1 h-12 bg-emerald-400 rounded-full"></div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-semibold text-emerald-800">
+                    <span className="text-xl font-semibold text-emerald-800" translate="no">
                       {word.nzebi_word}
                     </span>
                     <button 

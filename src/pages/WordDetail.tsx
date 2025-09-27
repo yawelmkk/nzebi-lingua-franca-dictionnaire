@@ -52,7 +52,7 @@ const WordDetail = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-3xl text-gray-800">
+                <CardTitle className="text-3xl text-gray-800" translate="no">
                   {word.nzebi}
                 </CardTitle>
                 <Button variant="outline" size="sm" onClick={handlePlayAudio}>
@@ -71,7 +71,7 @@ const WordDetail = () => {
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   Traduction française
                 </h3>
-                <p className="text-xl text-indigo-600">
+                <p className="text-xl text-indigo-600" translate="no">
                   {word.french}
                 </p>
               </div>
@@ -82,7 +82,7 @@ const WordDetail = () => {
                   <h3 className="text-lg font-semibold text-gray-700 mb-2">
                     Exemple d'utilisation
                   </h3>
-                  <p className="text-gray-600 italic bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-600 italic bg-gray-50 p-4 rounded-lg" translate="no">
                     "{word.example}"
                   </p>
                 </div>
