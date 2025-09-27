@@ -7,18 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { Search as SearchIcon, ArrowLeft, Loader2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDictionary, useSearch } from "@/hooks/useDictionary";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || "");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Debounce de 300ms
   const { loading, error } = useDictionary();
   const { search } = useSearch();
 
-  // Recherche optimisée avec algorithme de Levenshtein pour la recherche floue
+  // Recherche optimisée avec debouncing pour éviter les blocages
   const results = useMemo(() => {
-    if (!searchTerm.trim()) return [];
-    return search(searchTerm);
-  }, [searchTerm, search]);
+    if (!debouncedSearchTerm.trim()) return [];
+    return search(debouncedSearchTerm);
+  }, [debouncedSearchTerm, search]);
 
   if (loading) {
     return (
@@ -75,9 +77,9 @@ const Search = () => {
 
         {/* Results */}
         <div className="max-w-4xl mx-auto">
-          {searchTerm && (
+          {debouncedSearchTerm && (
             <p className="text-gray-600 mb-4">
-              {results.length} résultat(s) pour "{searchTerm}"
+              {results.length} résultat(s) pour "{debouncedSearchTerm}"
             </p>
           )}
 
@@ -120,9 +122,9 @@ const Search = () => {
             ))}
           </div>
 
-          {searchTerm && results.length === 0 && (
+          {debouncedSearchTerm && results.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">Aucun résultat trouvé pour "{searchTerm}"</p>
+              <p className="text-gray-500 mb-4">Aucun résultat trouvé pour "{debouncedSearchTerm}"</p>
               <Link to="/contact">
                 <Button variant="outline">
                   Proposer ce mot
