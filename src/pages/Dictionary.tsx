@@ -153,11 +153,6 @@ const Dictionary = () => {
                                 {word.part_of_speech}
                               </Badge>
                             )}
-                            {word.is_verb && (
-                              <Badge variant="outline" className="text-xs">
-                                Verbe
-                              </Badge>
-                            )}
                           </div>
                           <p className="text-xl font-medium text-indigo-600 mb-1" translate="no">
                             {word.french_word}

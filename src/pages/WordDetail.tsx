@@ -88,11 +88,6 @@ const WordDetail = () => {
                     {word.part_of_speech}
                   </Badge>
                 )}
-                {word.is_verb && (
-                  <Badge variant="outline">
-                    Verbe
-                  </Badge>
-                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-6">

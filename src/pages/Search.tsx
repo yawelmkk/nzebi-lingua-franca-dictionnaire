@@ -101,11 +101,6 @@ const Search = () => {
                             {word.part_of_speech}
                           </Badge>
                         )}
-                        {word.is_verb && (
-                          <Badge variant="outline">
-                            Verbe
-                          </Badge>
-                        )}
                       </div>
                       
                       {word.plural_form && (
