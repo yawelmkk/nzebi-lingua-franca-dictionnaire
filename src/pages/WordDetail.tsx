@@ -173,26 +173,6 @@ const WordDetail = () => {
                 </div>
               )}
 
-              {/* Additional Info */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-1">
-                    Longueur
-                  </h3>
-                  <p className="text-gray-600">
-                    {word.nzebi_word.length} caractères
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-1">
-                    Première lettre
-                  </h3>
-                  <p className="text-gray-600">
-                    {word.nzebi_word.charAt(0).toUpperCase()}
-                  </p>
-                </div>
-              </div>
-
               {/* Actions */}
               <div className="flex gap-2 pt-4 border-t">
                 <Link to="/contact" className="flex-1">
