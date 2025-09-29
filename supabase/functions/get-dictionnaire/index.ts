@@ -20,21 +20,26 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    console.log('Fetching dictionary directly from database...')
+    console.log('Fetching dictionary from dictionnaire.json file in dictionnaire bucket...')
     
-    // Fetch directly from database to ensure all columns are included
-    const { data: words, error: dbError } = await supabase
-      .from('words')
-      .select('*')
-      .order('nzebi_word')
+    // Download the JSON file from the 'dictionnaire' bucket
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('dictionnaire')
+      .download('dictionnaire.json')
 
-    if (dbError) {
-      throw dbError
+    if (downloadError) {
+      console.error('Error downloading dictionnaire.json file from dictionnaire bucket:', downloadError)
+      throw downloadError
     }
 
-    console.log(`Successfully fetched ${words?.length || 0} words from database`)
+    // Convert the file data to text and parse JSON
+    const fileText = await fileData.text()
+    const dictionaryData = JSON.parse(fileText)
+
+    console.log(`Successfully loaded dictionary from dictionnaire.json file in dictionnaire bucket with ${dictionaryData?.length || 0} entries`)
+
     return new Response(
-      JSON.stringify(words),
+      JSON.stringify(dictionaryData),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
