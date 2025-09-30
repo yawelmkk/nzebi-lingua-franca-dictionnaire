@@ -8,6 +8,30 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, MessageCircle, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+// Validation schema with Zod
+const contactFormSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, { message: "Le nom doit contenir au moins 2 caractères" })
+    .max(100, { message: "Le nom ne peut pas dépasser 100 caractères" }),
+  email: z.string()
+    .trim()
+    .email({ message: "Adresse email invalide" })
+    .max(255, { message: "L'email ne peut pas dépasser 255 caractères" }),
+  subject: z.string()
+    .trim()
+    .min(3, { message: "Le sujet doit contenir au moins 3 caractères" })
+    .max(200, { message: "Le sujet ne peut pas dépasser 200 caractères" }),
+  message: z.string()
+    .trim()
+    .min(10, { message: "Le message doit contenir au moins 10 caractères" })
+    .max(2000, { message: "Le message ne peut pas dépasser 2000 caractères" }),
+  type: z.enum(["suggestion", "error", "new-word", "other"], {
+    errorMap: () => ({ message: "Type de message invalide" })
+  })
+});
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -22,20 +46,43 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulate form submission
-    toast({
-      title: "Message envoyé !",
-      description: "Merci pour votre contribution. Nous vous répondrons bientôt.",
-    });
-    
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-      type: "suggestion"
-    });
+    try {
+      // Validate form data with Zod
+      const validatedData = contactFormSchema.parse(formData);
+      
+      // TODO: Send validated data to backend
+      console.log("Validated data:", validatedData);
+      
+      toast({
+        title: "Message envoyé !",
+        description: "Merci pour votre contribution. Nous vous répondrons bientôt.",
+      });
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+        type: "suggestion"
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Display first validation error
+        const firstError = error.errors[0];
+        toast({
+          title: "Erreur de validation",
+          description: firstError.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
