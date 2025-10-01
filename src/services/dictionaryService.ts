@@ -83,14 +83,6 @@ class DictionaryService {
       
       const phoneticFrench = this.soundex(normalizedFrench);
       this.addToIndex(phonetic, phoneticFrench, word);
-
-      // Index par parties des mots pour recherche partielle
-      [normalizedNzebi, normalizedFrench].forEach(text => {
-        for (let i = 2; i <= text.length; i++) {
-          const substring = text.substring(0, i);
-          this.addToIndex(exact, substring, word);
-        }
-      });
     });
 
     this.searchIndex = { exact, stemmed, phonetic, words };
@@ -167,39 +159,51 @@ class DictionaryService {
     if (!this.searchIndex) return [];
     
     const matches: DictionaryWord[] = [];
+    const seenIds = new Set<string>();
     
-    // Recherche tous les mots qui commencent par la requête ou qui contiennent la requête
-    for (const [key, words] of this.searchIndex.exact) {
-      // Préfixe : le mot commence par la requête (mais n'est pas exactement la requête)
-      if (key.length > query.length && key.startsWith(query)) {
-        matches.push(...words);
-      }
+    // Recherche directe dans les mots (bien plus efficace que d'itérer sur tout l'index)
+    this.searchIndex.words.forEach(word => {
+      const normalizedNzebi = normalizeString(word.nzebi_word);
+      const normalizedFrench = normalizeString(word.french_word);
+      
+      // Préfixe : le mot commence par la requête
+      const startsWithQuery = normalizedNzebi.startsWith(query) || normalizedFrench.startsWith(query);
+      
       // Contenu : le mot contient la requête (mais ne commence pas par elle)
-      else if (key.length > query.length && key.includes(query) && !key.startsWith(query)) {
-        matches.push(...words);
+      const containsQuery = !startsWithQuery && (normalizedNzebi.includes(query) || normalizedFrench.includes(query));
+      
+      if ((startsWithQuery || containsQuery) && !seenIds.has(word.id)) {
+        matches.push(word);
+        seenIds.add(word.id);
       }
-    }
+    });
     
-    // Supprimer les doublons
-    const uniqueMatches = matches.filter((word, index, self) => 
-      index === self.findIndex(w => w.id === word.id)
-    );
-    
-    return uniqueMatches;
+    return matches;
   }
 
   private getFuzzyMatches(query: string, excludeIds: Set<string>): DictionaryWord[] {
     if (!this.searchIndex) return [];
     
     const fuzzyResults: Array<{ word: DictionaryWord; distance: number }> = [];
-    const maxDistance = Math.min(3, Math.floor(query.length / 2)); // Distance maximale adaptative
+    const maxDistance = Math.min(2, Math.floor(query.length / 3)); // Distance plus stricte
+    let checkedCount = 0;
+    const maxChecks = 100; // Limiter le nombre de calculs pour la performance
     
-    this.searchIndex.words.forEach(word => {
-      if (excludeIds.has(word.id)) return;
+    // Utiliser l'index phonétique pour pré-filtrer les candidats
+    const queryPhonetic = this.soundex(query);
+    const phoneticCandidates = this.searchIndex.phonetic.get(queryPhonetic) || [];
+    
+    // Vérifier d'abord les candidats phonétiques
+    phoneticCandidates.forEach(word => {
+      if (excludeIds.has(word.id) || checkedCount >= maxChecks) return;
+      checkedCount++;
+      
+      const nzebiNorm = normalizeString(word.nzebi_word);
+      const frenchNorm = normalizeString(word.french_word);
       
       // Calculer la distance pour les mots nzébi et français
-      const nzebiDistance = this.levenshteinDistance(query, normalizeString(word.nzebi_word));
-      const frenchDistance = this.levenshteinDistance(query, normalizeString(word.french_word));
+      const nzebiDistance = this.levenshteinDistance(query, nzebiNorm);
+      const frenchDistance = this.levenshteinDistance(query, frenchNorm);
       
       // Prendre la plus petite distance
       const minDistance = Math.min(nzebiDistance, frenchDistance);
@@ -209,6 +213,29 @@ class DictionaryService {
         fuzzyResults.push({ word, distance: minDistance });
       }
     });
+    
+    // Si pas assez de résultats, chercher dans l'index stemmed
+    if (fuzzyResults.length < 5 && checkedCount < maxChecks) {
+      const queryStem = this.stem(query);
+      const stemCandidates = this.searchIndex.stemmed.get(queryStem) || [];
+      
+      stemCandidates.forEach(word => {
+        if (excludeIds.has(word.id) || checkedCount >= maxChecks) return;
+        if (fuzzyResults.some(r => r.word.id === word.id)) return;
+        checkedCount++;
+        
+        const nzebiNorm = normalizeString(word.nzebi_word);
+        const frenchNorm = normalizeString(word.french_word);
+        
+        const nzebiDistance = this.levenshteinDistance(query, nzebiNorm);
+        const frenchDistance = this.levenshteinDistance(query, frenchNorm);
+        const minDistance = Math.min(nzebiDistance, frenchDistance);
+        
+        if (minDistance <= maxDistance) {
+          fuzzyResults.push({ word, distance: minDistance });
+        }
+      });
+    }
     
     // Trier par distance croissante (plus petite distance = plus pertinent)
     fuzzyResults.sort((a, b) => {
