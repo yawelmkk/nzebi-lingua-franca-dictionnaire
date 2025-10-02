@@ -15,6 +15,7 @@ import { useDictionary } from "@/hooks/useDictionary";
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [confidentialityDialogOpen, setConfidentialityDialogOpen] = useState(false);
   const { toast } = useToast();
   const { words, loading, error } = useDictionary();
 
@@ -50,11 +51,7 @@ const Index = () => {
         duration: 3000,
       });
     } else if (option === "confidentialité") {
-      toast({
-        title: "Politique de confidentialité",
-        description: "Politique de confidentialité\nDernière mise à jour : 14 juin 2025\n\nNous respectons votre vie privée. Cette application, développée par le groupe Langue Nzébi Officiel, a été conçue dans un esprit éducatif et communautaire. À ce titre, nous nous engageons à protéger les données personnelles des utilisateurs.\n\n1. Données collectées\nNous ne collectons aucune donnée personnelle ni aucune information d'identification concernant les utilisateurs de cette application.\n\nL'application ne demande pas :\nd'accès à vos contacts,\nde localisation,\nde compte utilisateur,\nni d'autres permissions sensibles.\n\n2. Aucune publicité ni suivi\nL'application ne contient aucune publicité, et aucun outil de suivi tiers (comme Google Analytics, Facebook SDK, etc.) n'est intégré.\n\n3. Fonctionnalités communautaires\nSi vous choisissez de nous contacter via l'option « Contactez-nous » dans l'application, cela ouvrira simplement votre application d'e-mail. Vous êtes alors libre de nous écrire, mais aucune information n'est enregistrée par l'application elle-même.\n\n4. Sécurité\nMême si nous ne collectons aucune donnée, nous mettons un point d'honneur à maintenir l'application sécurisée et stable pour tous les utilisateurs.\n\n5. Modifications\nCette politique de confidentialité peut être mise à jour si de nouvelles fonctionnalités sont ajoutées. Dans ce cas, nous vous en informerons directement dans l'application.",
-        duration: 12000,
-      });
+      setConfidentialityDialogOpen(true);
     } else if (option === "à propos") {
       setAboutDialogOpen(true);
     } else {
@@ -90,6 +87,74 @@ const Index = () => {
 
   return (
     <>
+      <Dialog open={confidentialityDialogOpen} onOpenChange={setConfidentialityDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-emerald-800">Politique de confidentialité</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[60vh] pr-4">
+            <div className="space-y-4 text-gray-700">
+              <h3 className="font-semibold text-emerald-700 text-lg">1. Introduction</h3>
+              <p>
+                L'application Dictionnaire Nzébi (« nous », « notre », « nos ») est une application mobile conçue pour fournir une ressource linguistique sur la langue inzèbi. Votre vie privée est de la plus haute importance.
+              </p>
+              <p>
+                La présente politique de confidentialité vise à vous informer de la manière dont nous traitons vos données.
+              </p>
+
+              <h3 className="font-semibold text-emerald-700 text-lg mt-6">2. Absence de Collecte de Données Personnelles</h3>
+              <p>
+                Le Dictionnaire Nzébi est conçu pour fonctionner sans collecter, stocker, transmettre ou traiter aucune donnée personnelle de ses utilisateurs.
+              </p>
+              <p>
+                Nous ne demandons ni n'enregistrons votre nom, votre adresse e-mail, votre localisation, vos identifiants d'appareil ou toute autre information permettant de vous identifier.
+              </p>
+              <p>
+                L'application ne nécessite pas de connexion à un compte utilisateur.
+              </p>
+              <p>
+                Toutes les recherches de mots et les fonctionnalités (comme les favoris ou l'historique) sont stockées localement sur votre propre appareil et ne sont jamais transmises à nos serveurs ou à des tiers.
+              </p>
+
+              <h3 className="font-semibold text-emerald-700 text-lg mt-6">3. Données Non-Personnelles</h3>
+              <p>
+                Nous n'utilisons aucun outil d'analyse tiers ni aucun service de suivi qui pourrait collecter des informations sur la manière dont vous utilisez l'application.
+              </p>
+              <p>
+                Si, à l'avenir, nous décidions d'intégrer des outils d'analyse pour améliorer l'application (par exemple, pour savoir quelles fonctionnalités sont les plus utilisées), nous veillerons à ce que ces données soient :
+              </p>
+              <p>
+                Anonymes et agrégées (ne permettant pas d'identifier un utilisateur individuel).
+              </p>
+              <p>
+                Et nous mettrons à jour cette politique en conséquence.
+              </p>
+
+              <h3 className="font-semibold text-emerald-700 text-lg mt-6">4. Services Tiers</h3>
+              <p>
+                L'application est autonome et ne partage pas vos données avec des services tiers, des annonceurs ou des partenaires.
+              </p>
+              <p>
+                Si l'application est disponible via une boutique (comme l'App Store d'Apple ou le Google Play Store), leurs politiques de confidentialité respectives régissent les données qu'ils pourraient collecter au moment du téléchargement.
+              </p>
+
+              <h3 className="font-semibold text-emerald-700 text-lg mt-6">5. Sécurité</h3>
+              <p>
+                Puisque nous ne collectons aucune donnée personnelle, le risque de fuite de données personnelles est nul. La sécurité de vos données est assurée par le fait même qu'elles ne quittent jamais votre appareil.
+              </p>
+
+              <h3 className="font-semibold text-emerald-700 text-lg mt-6">6. Contact</h3>
+              <p>
+                Si vous avez des questions concernant cette politique de confidentialité, vous pouvez nous contacter à l'adresse suivante :
+              </p>
+              <p className="font-semibold">
+                languenzebiofficiel@gmail.com
+              </p>
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh]">
           <DialogHeader>
