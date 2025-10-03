@@ -1,10 +1,9 @@
 
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Volume2, MessageCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, MessageCircle, Loader2 } from "lucide-react";
 import { useDictionary } from "@/hooks/useDictionary";
+import { WordCard } from "@/components/WordCard";
 
 const WordDetail = () => {
   const { id } = useParams();
@@ -36,22 +35,15 @@ const WordDetail = () => {
   if (!word) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">Mot non trouvé</h2>
-            <Link to="/dictionary">
-              <Button>Retour au dictionnaire</Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="text-center p-6">
+          <h2 className="text-xl font-semibold mb-4">Mot non trouvé</h2>
+          <Link to="/dictionary">
+            <Button>Retour au dictionnaire</Button>
+          </Link>
+        </div>
       </div>
     );
   }
-
-  const handlePlayAudio = () => {
-    // Placeholder for audio functionality
-    alert("Fonctionnalité audio à venir !");
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,124 +63,23 @@ const WordDetail = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-3xl text-gray-800" translate="no">
-                  {word.nzebi_word}
-                </CardTitle>
-                <Button variant="outline" size="sm" onClick={handlePlayAudio}>
-                  <Volume2 className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                {word.part_of_speech && (
-                  <Badge variant="secondary">
-                    {word.part_of_speech}
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Translation */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Traduction française
-                </h3>
-                <p className="text-xl text-indigo-600" translate="no">
-                  {word.french_word}
-                </p>
-              </div>
-
-              {/* Additional Word Forms */}
-              <div className="grid md:grid-cols-2 gap-4">
-                {word.plural_form && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                      Forme pluriel
-                    </h3>
-                    <p className="text-lg text-gray-800" translate="no">
-                      {word.plural_form}
-                    </p>
-                  </div>
-                )}
-                
-                {word.imperative && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                      Impératif
-                    </h3>
-                    <p className="text-lg text-gray-800" translate="no">
-                      {word.imperative}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Synonyms */}
-              {word.synonyms && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    Synonymes
-                  </h3>
-                  <p className="text-lg text-gray-800" translate="no">
-                    {word.synonyms}
-                  </p>
-                </div>
-              )}
-
-              {/* Scientific Name */}
-              {word.scientific_name && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    Nom scientifique
-                  </h3>
-                  <p className="text-lg text-gray-800 italic" translate="no">
-                    {word.scientific_name}
-                  </p>
-                </div>
-              )}
-
-              {/* Examples */}
-              {word.example_nzebi && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    Exemple en Nzébi
-                  </h3>
-                  <p className="text-gray-600 italic bg-gray-50 p-4 rounded-lg" translate="no">
-                    "{word.example_nzebi}"
-                  </p>
-                </div>
-              )}
-
-              {word.example_french && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    Exemple en français
-                  </h3>
-                  <p className="text-gray-600 italic bg-gray-50 p-4 rounded-lg">
-                    "{word.example_french}"
-                  </p>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-2 pt-4 border-t">
-                <Link to="/contact" className="flex-1">
-                  <Button variant="outline" className="w-full">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Signaler une erreur
-                  </Button>
-                </Link>
-                <Link to="/search" className="flex-1">
-                  <Button className="w-full">
-                    Rechercher d'autres mots
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="max-w-2xl mx-auto space-y-6">
+          <WordCard word={word} />
+          
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Link to="/contact" className="flex-1">
+              <Button variant="outline" className="w-full">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Signaler une erreur
+              </Button>
+            </Link>
+            <Link to="/search" className="flex-1">
+              <Button className="w-full">
+                Rechercher d'autres mots
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

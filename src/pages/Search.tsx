@@ -2,12 +2,11 @@
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Search as SearchIcon, ArrowLeft, Loader2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDictionary, useSearch } from "@/hooks/useDictionary";
 import { useDebounce } from "@/hooks/useDebounce";
+import { WordCard } from "@/components/WordCard";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
@@ -85,59 +84,7 @@ const Search = () => {
 
           <div className="space-y-4">
             {results.map((word) => (
-              <Card key={word.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-semibold text-gray-800 mb-1" translate="no">
-                        {word.nzebi_word}
-                      </h3>
-                      <p className="text-xl font-medium text-indigo-600 mb-2" translate="no">
-                        {word.french_word}
-                      </p>
-                      <div className="flex gap-2 flex-wrap mb-2">
-                        {word.part_of_speech && (
-                          <Badge variant="secondary">
-                            {word.part_of_speech}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {word.plural_form && (
-                        <div className="text-sm text-gray-600 mb-1">
-                          <strong>Pluriel :</strong> <span translate="no">{word.plural_form}</span>
-                        </div>
-                      )}
-                      {word.imperative && (
-                        <div className="text-sm text-gray-600 mb-1">
-                          <strong>Impératif :</strong> <span translate="no">{word.imperative}</span>
-                        </div>
-                      )}
-                      {word.synonyms && (
-                        <div className="text-sm text-gray-600 mb-2">
-                          <strong>Synonymes :</strong> <span translate="no">{word.synonyms}</span>
-                        </div>
-                      )}
-                      
-                      {word.example_french && (
-                        <div className="text-sm text-gray-600 italic mb-1">
-                          <strong>Exemple français :</strong> <span translate="no">{word.example_french}</span>
-                        </div>
-                      )}
-                      {word.example_nzebi && (
-                        <div className="text-sm text-gray-600 italic">
-                          <strong>Exemple nzébi :</strong> <span translate="no">{word.example_nzebi}</span>
-                        </div>
-                      )}
-                    </div>
-                    <Link to={`/word/${word.id}`}>
-                      <Button variant="outline" size="sm">
-                        Détails
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+              <WordCard key={word.id} word={word} showDetailsButton />
             ))}
           </div>
 
